@@ -4,15 +4,24 @@ import { customElement, state } from 'lit/decorators.js';
 import { styles as sharedStyles } from '../../styles/shared-styles'
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
-import { template } from './broadcast.template';
+import { template } from './broadcaster.template';
+import { RouterLocation } from '@vaadin/router';
 
-@customElement('app-broadcast')
-export class AppBroadcast extends LitElement {
+@customElement('app-broadcaster')
+export class AppBroadcaster extends LitElement {
   @state() keys: {sk?: CryptoKey, pk?: CryptoKey} = {};
+  @state() channel: string = "";
+  @state() chanuuid: string = "";
 
   static styles = [
     sharedStyles
   ]
+
+  onBeforeEnter(location: RouterLocation) {
+    this.channel = location.params.channel as string
+    console.log(this.channel);
+    this.claimBroadcast(this.channel)
+  }
 
   constructor() {
     super();
@@ -57,7 +66,7 @@ export class AppBroadcast extends LitElement {
       },
       body: JSON.stringify({channel: channel, key: this.keys.pk})
     }).then((response) => response.json()).then((data: any) => {
-      window.location.href = (import.meta as any).env.BASE_URL + 'broadcast/' + channel
+      this.chanuuid = data.ref
       return;
     });
   }

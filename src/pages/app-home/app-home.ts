@@ -6,6 +6,10 @@ import '@pwabuilder/pwainstall';
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/button-group/button-group.js';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
 
 import { styles } from '../../styles/shared-styles';
 
@@ -15,6 +19,7 @@ export class AppHome extends LitElement {
   // For more information on using properties and state in lit
   // check out this link https://lit.dev/docs/components/properties/
   @property() message = 'Welcome!';
+  @state() channel: string = "test";
 
   static get styles() {
     return [
@@ -79,71 +84,45 @@ export class AppHome extends LitElement {
     });
   }
 
-  async firstUpdated() {
-    // this method is a lifecycle even in lit
-    // for more info check out the lit docs https://lit.dev/docs/components/lifecycle/
-    console.log('This is your home page');
+  claimBroadcast(): void {
+      window.location.href = (import.meta as any).env.BASE_URL + 'broadcast/' + this.channel
+  }
+
+  channelIHandler(e: any) {
+    this.channel = e.target.value;
   }
 
   render() {
     return html`
-      <app-header></app-header>
+    <app-header></app-header>
 
-      <main>
-        <div id="welcomeBar">
-          <sl-card id="welcomeCard">
-            <div slot="header">
-              <h2>${this.message}</h2>
-            </div>
+    <main>
+      <div id="welcomeBar">
+        <sl-card id="welcomeCard">
+          <div slot="header">
+          </div>
 
-            <p>
-              For more information on the PWABuilder pwa-starter, check out the
-              <a href="https://github.com/pwa-builder/pwa-starter/wiki/Getting-Started">
-                Documentation on Github</a>.
-            </p>
+          <sl-button-group label="Channel">
+          <sl-input placeholder="" size="large" .value=${this.channel} @input="${this.channelIHandler}">
+          <sl-icon name="at" slot="prefix"></sl-icon>
+        </sl-input>
+          <sl-button size="large" href="${(import.meta as any).env.BASE_URL}broadcaster/${this.channel}">Broadcast</sl-button>
+        </sl-button-group>
 
-            <p id="mainInfo">
-              Welcome to the
-              <a href="https://pwabuilder.com">PWABuilder</a>
-              pwa-starter! Be sure to head back to
-              <a href="https://pwabuilder.com">PWABuilder</a>
-              when you are ready to ship this PWA to the Microsoft Store, Google Play
-              and the Apple App Store!
-            </p>
 
-            ${'share' in navigator
-              ? html`<sl-button slot="footer" variant="primary" @click="${this.share}">Share this Starter!</sl-button>`
-              : null}
-          </sl-card>
+          <p>
+            For more information on the PWABuilder pwa-starter, check out the
+            <a href="https://github.com/pwa-builder/pwa-starter/wiki/Getting-Started">
+              Documentation on Github</a>.
+          </p>
 
-          <sl-card id="infoCard">
-            <h2>Technology Used</h2>
+        </sl-card>
 
-            <ul>
-              <li>
-                <a href="https://www.typescriptlang.org/">TypeScript</a>
-              </li>
+        <sl-button href="${(import.meta as any).env.BASE_URL}about" variant="primary">Navigate to About</sl-button>
+      </div>
 
-              <li>
-                <a href="https://lit.dev">lit</a>
-              </li>
-
-              <li>
-                <a href="https://shoelace.style/">Shoelace</a>
-              </li>
-
-              <li>
-                <a href="https://vaadin.github.io/vaadin-router/vaadin-router/demo/#vaadin-router-getting-started-demos"
-                  >Vaadin Router</a>
-              </li>
-            </ul>
-          </sl-card>
-
-          <sl-button href="${(import.meta as any).env.BASE_URL}about" variant="primary">Navigate to About</sl-button>
-        </div>
-
-        <pwa-install>Install PWA Starter</pwa-install>
-      </main>
+      <pwa-install>Install PWA Starter</pwa-install>
+    </main>
     `;
   }
 }

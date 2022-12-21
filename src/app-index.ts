@@ -5,6 +5,7 @@ import { Router } from '@vaadin/router';
 import './pages/app-home/app-home';
 import './components/header';
 import './styles/global.css';
+import { setBasePath } from '@shoelace-style/shoelace';
 
 @customElement('app-index')
 export class AppIndex extends LitElement {
@@ -58,6 +59,8 @@ export class AppIndex extends LitElement {
     // this method is a lifecycle even in lit
     // for more info check out the lit docs https://lit.dev/docs/components/lifecycle/
 
+    setBasePath("/assets/shoelace")
+
     // For more info on using the @vaadin/router check here https://vaadin.com/router
     const router = new Router(this.shadowRoot?.querySelector('#routerOutlet'));
     router.setRoutes([
@@ -67,8 +70,11 @@ export class AppIndex extends LitElement {
         animate: true,
         children: [
           { path: '', component: 'app-home' },
-          { path: 'broadcaster', component: 'app-broadcaster' },
-          { path: 'listener', component: 'app-listener' },
+          { path: 'broadcaster/:channel', component: 'app-broadcaster',
+          action: async () => {
+            await import('./pages/app-broadcaster/app-broadcaster.js');
+          },},
+          { path: 'listener/:channel', component: 'app-listener' },
           {
             path: 'about',
             component: 'app-about',
