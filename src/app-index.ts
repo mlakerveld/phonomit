@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { Router } from '@vaadin/router';
 
-import './pages/app-home';
+import './pages/app-home/app-home';
 import './components/header';
 import './styles/global.css';
 
@@ -67,6 +67,8 @@ export class AppIndex extends LitElement {
         animate: true,
         children: [
           { path: '', component: 'app-home' },
+          { path: 'broadcaster', component: 'app-broadcaster' },
+          { path: 'listener', component: 'app-listener' },
           {
             path: 'about',
             component: 'app-about',
