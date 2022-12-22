@@ -13,28 +13,44 @@ const ablyKey = process.env.ABLY_KEY || "ERROR"
 export const handler: Handler = async (event) => {
     const data = JSON.parse(event.body ?? "{}")
 
-    let handshakeId = 'h' + self.crypto.randomUUID();
-    let message = {channel: handshakeId, sdp: data.sdp};
-
     let room: any = await client.query(
       q.Get(q.Ref(q.Collection('rooms'), data.id))
     )
 
+    let handshakeId = 'h' + self.crypto.randomUUID() + self.crypto.randomUUID();
 
-    var rest = new Ably.Rest(ablyKey);
-    var channel = rest.channels.get(room.data.broadcastSock);
+    let key = await window.crypto.subtle.importKey(
+      "jwk",
+      room.data.key,
+      {
+        name: "RSA-OAEP",
+        hash: "SHA-256"
+      },
+      true,
+      ["encrypt"]
+    );
+
+    let enc = new TextEncoder();
+    let rChannel = await window.crypto.subtle.encrypt(
+      {
+        name: "RSA-OAEP",
+      },
+      key,
+      enc.encode(handshakeId)
+    );
+
+    let rChannelStr = new Uint8Array(rChannel).join(",");
+
+    let message = {channel: rChannelStr, sdp: data.sdp};
+
+    let rest = new Ably.Rest(ablyKey);
+    let channel = rest.channels.get(room.data.broadcastSock);
     channel.publish("handshake", message);
 
-
-    let socketConn = self.crypto.randomUUID() + self.crypto.randomUUID();
-    await client.query(
-        q.Create('handshakes', { data: { id: handshakeId, key: data.key, broadcastSock: socketConn } })
-      )
     return {
       statusCode: 200,
       body: JSON.stringify({
-        id: uuid,
-        socket: socketConn
+        socket: handshakeId
       }),
     }
 }
