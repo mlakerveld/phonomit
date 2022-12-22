@@ -3,6 +3,7 @@ import { customElement } from 'lit/decorators.js';
 import { Router } from '@vaadin/router';
 
 import './pages/app-home/app-home';
+import './pages/app-listener/app-listener';
 import './components/header';
 import './styles/global.css';
 import { setBasePath } from '@shoelace-style/shoelace';
@@ -70,11 +71,11 @@ export class AppIndex extends LitElement {
         animate: true,
         children: [
           { path: '', component: 'app-home' },
-          { path: 'broadcaster/:channel', component: 'app-broadcaster',
+          { path: 'broadcaster/:channel?', component: 'app-broadcaster',
           action: async () => {
             await import('./pages/app-broadcaster/app-broadcaster.js');
           },},
-          { path: 'listener/:channel', component: 'app-listener' }
+          { path: 'listen/:channel', component: 'app-listener' }
         ],
       } as any,
     ]);
