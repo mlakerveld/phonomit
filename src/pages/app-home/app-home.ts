@@ -99,11 +99,12 @@ export class AppHome extends LitElement {
     <main>
       <div id="welcomeBar">
         <sl-card id="welcomeCard">
+        <sl-button size="large" href="${(import.meta as any).env.BASE_URL}broadcaster">Broadcast Now!</sl-button>
           <sl-button-group label="Channel">
           <sl-input placeholder="" size="large" .value=${this.channel} @input="${this.channelIHandler}">
           <sl-icon name="at" slot="prefix"></sl-icon>
           </sl-input>
-          <sl-button size="large" href="${(import.meta as any).env.BASE_URL}broadcaster/${this.channel}">Broadcast</sl-button>
+          <sl-button size="large" href="${(import.meta as any).env.BASE_URL}listen/${this.channel}">Listen</sl-button>
         </sl-button-group>
 
 

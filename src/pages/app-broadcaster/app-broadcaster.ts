@@ -12,6 +12,7 @@ export class AppBroadcaster extends LitElement {
   @state() keys: {sk?: CryptoKey, pk?: CryptoKey} = {};
   @state() channel: string = "";
   @state() chanuuid: string = "";
+  @state() socket: string = "";
 
   static styles = [
     sharedStyles
@@ -19,8 +20,7 @@ export class AppBroadcaster extends LitElement {
 
   onBeforeEnter(location: RouterLocation) {
     this.channel = location.params.channel as string
-    console.log(this.channel);
-    this.claimBroadcast(this.channel)
+    this.startBroadcast(this.channel)
   }
 
   constructor() {
@@ -57,8 +57,8 @@ export class AppBroadcaster extends LitElement {
     })
   }
 
-  claimBroadcast(channel: string): Promise<void> {
-    return fetch('/.netlify/functions/claim-channel', {
+  startBroadcast(channel: string): Promise<void> {
+    return fetch('/.netlify/functions/start-broadcast', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -66,9 +66,23 @@ export class AppBroadcaster extends LitElement {
       },
       body: JSON.stringify({key: this.keys.pk})
     }).then((response) => response.json()).then((data: any) => {
-      this.chanuuid = data.ref
+      this.chanuuid = data.id
+      history.replaceState({}, '', 'broadcaster/' + this.chanuuid)
+      this.socket = data.socketConn
+      this.listenSocket(this.socket);
       return;
     });
+  }
+
+  listenSocket(socket: string): void {
+    var key = 'fySCMw.J8cX4Q:961UZSb7JKCNqJHa0Gi3S2VHe2JOWXVLJ0BGYhFJgog';
+    var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key' + key;
+    var eventSource = new EventSource(url);
+
+    eventSource.onmessage = function(event) {
+      var message = JSON.parse(event.data);
+      console.log('Message: ' + message.name + ' - ' + message.data);
+    };
   }
 
   render() {
