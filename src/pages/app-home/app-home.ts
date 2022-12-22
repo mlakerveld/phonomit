@@ -19,7 +19,7 @@ export class AppHome extends LitElement {
   // For more information on using properties and state in lit
   // check out this link https://lit.dev/docs/components/properties/
   @property() message = 'Welcome!';
-  @state() channel: string = "test";
+  @state() channel: string = "";
 
   static get styles() {
     return [
@@ -99,26 +99,19 @@ export class AppHome extends LitElement {
     <main>
       <div id="welcomeBar">
         <sl-card id="welcomeCard">
-          <div slot="header">
-          </div>
-
           <sl-button-group label="Channel">
           <sl-input placeholder="" size="large" .value=${this.channel} @input="${this.channelIHandler}">
           <sl-icon name="at" slot="prefix"></sl-icon>
-        </sl-input>
+          </sl-input>
           <sl-button size="large" href="${(import.meta as any).env.BASE_URL}broadcaster/${this.channel}">Broadcast</sl-button>
         </sl-button-group>
 
 
           <p>
-            For more information on the PWABuilder pwa-starter, check out the
-            <a href="https://github.com/pwa-builder/pwa-starter/wiki/Getting-Started">
-              Documentation on Github</a>.
+            Start broadcasting your audio to people now!
           </p>
 
         </sl-card>
-
-        <sl-button href="${(import.meta as any).env.BASE_URL}about" variant="primary">Navigate to About</sl-button>
       </div>
 
       <pwa-install>Install PWA Starter</pwa-install>

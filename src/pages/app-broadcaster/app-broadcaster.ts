@@ -64,7 +64,7 @@ export class AppBroadcaster extends LitElement {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({channel: channel, key: this.keys.pk})
+      body: JSON.stringify({key: this.keys.pk})
     }).then((response) => response.json()).then((data: any) => {
       this.chanuuid = data.ref
       return;

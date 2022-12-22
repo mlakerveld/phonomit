@@ -74,14 +74,7 @@ export class AppIndex extends LitElement {
           action: async () => {
             await import('./pages/app-broadcaster/app-broadcaster.js');
           },},
-          { path: 'listener/:channel', component: 'app-listener' },
-          {
-            path: 'about',
-            component: 'app-about',
-            action: async () => {
-              await import('./pages/app-about/app-about.js');
-            },
-          }
+          { path: 'listener/:channel', component: 'app-listener' }
         ],
       } as any,
     ]);
