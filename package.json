@@ -9,8 +9,9 @@
     "dev-task": "vite",
     "deploy": " npx @azure/static-web-apps-cli login --no-use-keychain && npx @azure/static-web-apps-cli deploy",
     "build": "tsc && vite build",
-    "start": "npm run dev",
-    "start-remote": "vite --host"
+    "start": "npm run assets && npm run dev",
+    "start-remote": "vite --host",
+    "assets": "cp -r 'node_modules/@shoelace-style/shoelace/dist/assets/icons' 'public/assets/shoelace/assets'"
   },
   "author": "",
   "license": "ISC",

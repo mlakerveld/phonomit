@@ -10,16 +10,20 @@ export default defineConfig({
     assetsDir: "code",
   },
   plugins: [
-    copy({
-      targets: [
-        {
-          src: 'node_modules/@shoelace-style/shoelace/dist/assets/icons',
-          dest: 'public/assets/shoelace/assets'
-        }
-      ],
-      // https://github.com/vitejs/vite/issues/1231
-      hook: 'writeBundle'
-    }),
+    {
+      ...copy({
+        targets: [
+          {
+            src: 'node_modules/@shoelace-style/shoelace/dist/assets/icons',
+            dest: 'dist/assets/shoelace/assets'
+          }
+        ],
+        // https://github.com/vitejs/vite/issues/1231
+        hook: 'writeBundle',
+        verbose: true
+      }),
+      apply: 'build'
+    },
     VitePWA({
       strategies: "injectManifest",
       injectManifest: {
