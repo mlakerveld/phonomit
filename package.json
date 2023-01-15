@@ -20,6 +20,7 @@
     "@shoelace-style/shoelace": "^2.0.0-beta.87",
     "@vaadin/router": "^1.7.4",
     "ably": "^1.2.34",
+    "faunadb": "^4.7.1",
     "lit": "^2.3.1",
     "lit-element-state": "^1.7.0",
     "simple-peer": "^9.11.1",
