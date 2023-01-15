@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions'
 import faunadb from 'faunadb'
 import Ably from 'ably'
 
+const crypto = globalThis.crypto;
 /* configure faunaDB Client with our secret */
 const q = faunadb.query
 const client = new faunadb.Client({
