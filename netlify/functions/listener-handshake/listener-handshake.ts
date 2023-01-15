@@ -17,7 +17,7 @@ export const handler: Handler = async (event) => {
       q.Get(q.Ref(q.Collection('rooms'), data.id))
     )
 
-    let handshakeId = 'h' + self.crypto.randomUUID() + self.crypto.randomUUID();
+    let handshakeId = 'h' + crypto.randomUUID() + crypto.randomUUID();
 
     let key = await window.crypto.subtle.importKey(
       "jwk",

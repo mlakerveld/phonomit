@@ -10,8 +10,8 @@ const client = new faunadb.Client({
 export const handler: Handler = async (event) => {
     const data = JSON.parse(event.body ?? "{}")
 
-    let uuid = self.crypto.randomUUID();
-    let socketConn = self.crypto.randomUUID() + self.crypto.randomUUID();
+    let uuid = crypto.randomUUID();
+    let socketConn = crypto.randomUUID() + crypto.randomUUID();
     await client.query(
         q.Create('rooms', { data: { uuid: uuid, key: data.key, broadcastSock: socketConn } })
       )
