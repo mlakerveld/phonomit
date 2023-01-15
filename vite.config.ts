@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import copy from 'rollup-plugin-copy';
+import { NgmiPolyfill } from "vite-plugin-ngmi-polyfill";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,12 +11,13 @@ export default defineConfig({
     assetsDir: "code",
   },
   plugins: [
+    NgmiPolyfill(),
     {
       ...copy({
         targets: [
           {
             src: 'node_modules/@shoelace-style/shoelace/dist/assets/icons',
-            dest: 'dist/assets/shoelace/assets'
+            dest: 'dist/assets/shoelace/assets/icons'
           }
         ],
         // https://github.com/vitejs/vite/issues/1231

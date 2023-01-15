@@ -5,13 +5,13 @@ import { styles as sharedStyles } from '../../styles/shared-styles'
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import { RouterLocation } from '@vaadin/router';
+import SimplePeer, { Instance } from 'simple-peer';
 
-import SimplePeer from 'simple-peer';
 
 @customElement('app-listener')
 export class AppListener extends LitElement {
   @state() chanuuid: string = "";
-  @state() peer: SimplePeer | null = null;
+  @state() peer: Instance | null = null;
 
   static styles = [
     sharedStyles

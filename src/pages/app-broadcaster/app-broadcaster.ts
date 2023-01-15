@@ -20,7 +20,7 @@ export class AppBroadcaster extends LitElement {
 
   onBeforeEnter(location: RouterLocation) {
     this.channel = location.params.channel as string
-    this.startBroadcast(this.channel)
+    this.startBroadcast()
   }
 
   constructor() {
@@ -57,7 +57,7 @@ export class AppBroadcaster extends LitElement {
     })
   }
 
-  startBroadcast(channel: string): Promise<void> {
+  startBroadcast(): Promise<void> {
     return fetch('/.netlify/functions/start-broadcast', {
       method: 'POST',
       headers: {
