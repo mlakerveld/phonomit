@@ -18,7 +18,7 @@ export const handler: Handler = async (event, context) => {
 
   if(name) {
     var items = await client.query(
-      q.Paginate(q.Match(q.Index('Names'), name))
+      q.Paginate(q.Match(q.Index('Names'), name), {size: 1})
     )
     if(items.length === 0) {
       var createP = await client.query(

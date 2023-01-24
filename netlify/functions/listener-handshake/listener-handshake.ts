@@ -1,8 +1,8 @@
 import { Handler } from '@netlify/functions'
 import faunadb from 'faunadb'
 import Ably from 'ably'
+import crypto from 'node:crypto'
 
-const crypto = globalThis.crypto;
 /* configure faunaDB Client with our secret */
 const q = faunadb.query
 const client = new faunadb.Client({
@@ -15,12 +15,13 @@ export const handler: Handler = async (event) => {
     const data = JSON.parse(event.body ?? "{}")
 
     let room: any = await client.query(
-      q.Get(q.Ref(q.Collection('rooms'), data.id))
+      q.Get(q.Match(q.Index('UUID'), data.id))
     )
 
-    let handshakeId = 'h' + crypto.randomUUID() + crypto.randomUUID();
+    let handshakeId = 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
+    let listeningSock = 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
 
-    let key = await window.crypto.subtle.importKey(
+    let key = await crypto.subtle.importKey(
       "jwk",
       room.data.key,
       {
@@ -32,7 +33,7 @@ export const handler: Handler = async (event) => {
     );
 
     let enc = new TextEncoder();
-    let rChannel = await window.crypto.subtle.encrypt(
+    let rChannel = await crypto.subtle.encrypt(
       {
         name: "RSA-OAEP",
       },
@@ -40,9 +41,13 @@ export const handler: Handler = async (event) => {
       enc.encode(handshakeId)
     );
 
-    let rChannelStr = new Uint8Array(rChannel).join(",");
+    let rChannelStr = Array.from(new Uint8Array(rChannel));
 
-    let message = {channel: rChannelStr, sdp: data.sdp};
+    let message = {channel: rChannelStr, sdp: data.sdp, key: data.key};
+
+    await client.query(
+      q.Create('handshakes', { data: { uuid: handshakeId, broadcastSock: listeningSock } })
+    )
 
     let rest = new Ably.Rest(ablyKey);
     let channel = rest.channels.get(room.data.broadcastSock);
@@ -51,7 +56,8 @@ export const handler: Handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        socket: handshakeId
+        id: handshakeId,
+        socket: listeningSock
       }),
     }
 }

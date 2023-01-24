@@ -6,19 +6,24 @@ import { styles as sharedStyles } from '../../styles/shared-styles'
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import { RouterLocation } from '@vaadin/router';
 import SimplePeer, { Instance } from 'simple-peer';
-
+import { guard } from "lit-html/directives/guard.js";
 
 @customElement('app-listener')
 export class AppListener extends LitElement {
   @state() chanuuid: string = "";
   @state() peer: Instance | null = null;
+  @state() key: CryptoKey | null = null;
+  @state() encKey: number[] | null = null;
+  @state() stream: MediaStream | null = null;
 
   static styles = [
     sharedStyles
   ]
 
-  onBeforeEnter(location: RouterLocation) {
-    this.chanuuid = location.params.channel as string
+  async onBeforeEnter(location: RouterLocation) {
+    this.chanuuid = location.params.channel as string;
+
+    await this.generateKeys();
 
     this.startWebRTC();
   }
@@ -27,25 +32,149 @@ export class AppListener extends LitElement {
     super();
   }
 
+  async generateKeys() {
+    this.key = await window.crypto.subtle.generateKey(
+      {
+        name: "AES-GCM",
+        length: 256
+      },
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    let pbKey = await this.getStreamKey();
+
+    let bKey = await window.crypto.subtle.importKey(
+      "jwk",
+      pbKey,
+      {
+        name: "RSA-OAEP",
+        hash: "SHA-256"
+      },
+      true,
+      ["encrypt"]
+    );
+
+    await window.crypto.subtle.exportKey('jwk',this.key).then(async (rKey) => {
+      this.encKey = await Array.from(new Uint8Array(await window.crypto.subtle.encrypt(
+        {
+          name: "RSA-OAEP"
+        },
+        bKey,
+        new TextEncoder().encode(JSON.stringify(rKey))
+      )));
+    })
+
+
+  }
+
   startWebRTC(): void {
     this.peer = new SimplePeer({
-      initiator: true,
-      trickle: false
-    })
+      trickle: false,
+      initiator: true
+    });
+    this.peer.addTransceiver("audio", {direction: "recvonly"})
+
+    this.peer.on('signal', async (data: SimplePeer.SignalData) => {
+      fetch('http://localhost:8888/.netlify/functions/listener-handshake', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          key: this.encKey,
+          id: this.chanuuid,
+          sdp: await this.encryptData(JSON.stringify(data))
+        })
+      }).then((response) => response.json()).then((data: any) => {
+        this.listenSocket(data.socket);
+        return;
+      });
+    });
+
+    this.peer.on('data', async (data: SimplePeer.SimplePeerData) => {
+      console.log("DATA: " + data)
+    });
+
+    this.peer.on('stream', async (data: MediaStream) => {
+      this.stream = data;
+      console.log("STREAM: " + data)
+    });
+
+    this.peer.on('connect', () => {
+      console.log('connected to peer')
+      this.peer?.send("hi");
+    });
+  }
+
+  async encryptData(data: string) : Promise<{iv: number[], data: number[]}> {
+    let iv = window.crypto.getRandomValues(new Uint8Array(12));
+    let eData = new TextEncoder().encode(data);
+    let buffer = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: iv
+      },
+      this.key!,
+      eData
+    );
+    return Promise.resolve({iv: Array.from(iv), data: Array.from(new Uint8Array(buffer))});
+  }
+
+  getStreamKey(): Promise<string> {
+    return fetch('http://localhost:8888/.netlify/functions/get-key', {method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: this.chanuuid,
+    })}).then(resp => resp.json())
   }
 
   listenSocket(socket: string): void {
     var key = 'fySCMw.J8cX4Q:961UZSb7JKCNqJHa0Gi3S2VHe2JOWXVLJ0BGYhFJgog';
-    var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key' + key;
+    var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key=' + key;
     var eventSource = new EventSource(url);
 
-    eventSource.onmessage = function(event) {
-      var message = JSON.parse(event.data);
-      console.log('Message: ' + message.name + ' - ' + message.data);
-    };
+    eventSource.onmessage = async function(event) {
+      console.log(event);
+      var message = JSON.parse(JSON.parse(event.data).data);
+      let sdp = await window.crypto.subtle.decrypt(
+        {
+          name: "AES-GCM",
+          iv: new Uint8Array(message.iv)
+        },
+        this.key!,
+        new Uint8Array(message.data).buffer
+      );
+
+      this.peer.signal(JSON.parse(new TextDecoder().decode(sdp)));
+    }.bind(this);
+  }
+
+  getAudioPlayer() {
+    if(this.stream) {
+      return html`
+        <audio style="display: none" id="player" controls .srcObject=${guard(this.stream, () => this.stream)}></audio>
+        <sl-icon id='audio-icon' @click="${this.play}" style="font-size: 20rem;" name="play-circle-fill"></sl-icon>`;
+    } else {
+      return html`<sl-spinner style="font-size: 20rem;"></sl-spinner>`;
+    }
+  }
+
+  play() {
+    this.shadowRoot?.getElementById("player")?.play();
+    this.shadowRoot.getElementById("audio-icon").name = "pause-circle-fill";
   }
 
   render() {
-    return html`Listening to ${this.chanuuid}`;
+    return html`
+      Listening to ${this.chanuuid}
+      <br/>
+      ${this.getAudioPlayer()}
+
+    `;
   }
 }

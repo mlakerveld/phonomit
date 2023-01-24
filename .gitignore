@@ -7,3 +7,5 @@ types
 .idea
 .github
 public/assets/shoelace
+# Local Netlify folder
+.netlify
