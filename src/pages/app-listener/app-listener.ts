@@ -15,6 +15,9 @@ export class AppListener extends LitElement {
   @state() key: CryptoKey | null = null;
   @state() encKey: number[] | null = null;
   @state() stream: MediaStream | null = null;
+  hsId: string = "";
+  status: boolean = false;
+  @state() muted: boolean = false;
 
   static styles = [
     sharedStyles
@@ -76,6 +79,7 @@ export class AppListener extends LitElement {
     this.peer.addTransceiver("audio", {direction: "recvonly"})
 
     this.peer.on('signal', async (data: SimplePeer.SignalData) => {
+      console.log("MUST SIGNAL");
       fetch('http://localhost:8888/.netlify/functions/listener-handshake', {
         method: 'POST',
         headers: {
@@ -85,19 +89,27 @@ export class AppListener extends LitElement {
         body: JSON.stringify({
           key: this.encKey,
           id: this.chanuuid,
-          sdp: await this.encryptData(JSON.stringify(data))
+          sdp: await this.encryptData(JSON.stringify(data)),
+          hsId: this.hsId ? this.hsId : undefined
         })
       }).then((response) => response.json()).then((data: any) => {
-        this.listenSocket(data.socket);
+        if(!this.hsId) {
+          this.hsId = data.id;
+          this.listenSocket(data.socket);
+        }
         return;
       });
     });
 
-    this.peer.on('data', async (data: SimplePeer.SimplePeerData) => {
-      console.log("DATA: " + data)
+    this.peer.on('data', (data: SimplePeer.SimplePeerData) => {
+      let jData = JSON.parse(data as string);
+      if(jData.type === "mute") {
+        this.muted = jData.value;
+      }
+      this.requestUpdate();
     });
 
-    this.peer.on('stream', async (data: MediaStream) => {
+    this.peer.on('stream', (data: MediaStream) => {
       this.stream = data;
       console.log("STREAM: " + data)
     });
@@ -139,7 +151,6 @@ export class AppListener extends LitElement {
     var eventSource = new EventSource(url);
 
     eventSource.onmessage = async function(event) {
-      console.log(event);
       var message = JSON.parse(JSON.parse(event.data).data);
       let sdp = await window.crypto.subtle.decrypt(
         {
@@ -157,6 +168,7 @@ export class AppListener extends LitElement {
   getAudioPlayer() {
     if(this.stream) {
       return html`
+        ${this.muted ? html`Muted` : html`Unmuted`}
         <audio style="display: none" id="player" controls .srcObject=${guard(this.stream, () => this.stream)}></audio>
         <sl-icon id='audio-icon' @click="${this.play}" style="font-size: 20rem;" name="play-circle-fill"></sl-icon>`;
     } else {
@@ -165,8 +177,14 @@ export class AppListener extends LitElement {
   }
 
   play() {
-    this.shadowRoot?.getElementById("player")?.play();
-    this.shadowRoot.getElementById("audio-icon").name = "pause-circle-fill";
+    if(this.status) {
+      this.shadowRoot?.getElementById("player")?.pause();
+      this.shadowRoot.getElementById("audio-icon").name = "play-circle-fill";
+    } else {
+      this.shadowRoot?.getElementById("player")?.play();
+      this.shadowRoot.getElementById("audio-icon").name = "pause-circle-fill";
+    }
+    this.status = !this.status;
   }
 
   render() {

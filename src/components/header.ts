@@ -4,7 +4,7 @@ import { property, customElement } from 'lit/decorators.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 @customElement('app-header')
 export class AppHeader extends LitElement {
-  @property({ type: String }) title = 'Phonomit';
+  @property({ type: String }) title = 'Trono.stream';
 
   @property({ type: Boolean}) enableBack: boolean = false;
 

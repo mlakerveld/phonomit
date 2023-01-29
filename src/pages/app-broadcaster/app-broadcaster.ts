@@ -5,8 +5,20 @@ import { styles as sharedStyles } from '../../styles/shared-styles'
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/avatar/avatar.js';
+import '@shoelace-style/shoelace/dist/components/badge/badge.js';
+import '@shoelace-style/shoelace/dist/components/relative-time/relative-time.js';
+import '../../components/select-device';
 import { RouterLocation } from '@vaadin/router';
 import SimplePeer, { Instance } from 'simple-peer';
+
+interface Peer {
+  id: string,
+  connecting: boolean,
+  connect?: Date,
+  disconnect?: Date,
+  name: string,
+  instance: Instance
+}
 
 
 @customElement('app-broadcaster')
@@ -16,7 +28,7 @@ export class AppBroadcaster extends LitElement {
   @state() channel: string = "";
   @state() chanuuid: string = "";
   @state() socket: string = "";
-  @state() peers: {id: string, status: boolean, name: string, instance: Instance}[] = [];
+  @state() peers: Peer[] = [];
   @state() micMuted: boolean = true;
   stream: MediaStream | null = null;
 
@@ -116,15 +128,8 @@ export class AppBroadcaster extends LitElement {
     var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key=' + key;
     var eventSource = new EventSource(url);
 
-    eventSource.onopen = () => {
-      console.log('opened es')
-    };
-
-    eventSource.onerror = (error) => {
-      console.log('ERROR es', error)
-    };
-
     eventSource.onmessage = function(event: any) {
+      console.log('received ably message')
       var message = JSON.parse(event.data);
       if(message.name === "handshake") {
         this.parseHandshake(JSON.parse(message.data));
@@ -136,6 +141,14 @@ export class AppBroadcaster extends LitElement {
     let decoder = new TextDecoder();
     let hsId = message.channel;
     hsId = new Uint8Array(hsId).buffer;
+    hsId = await window.crypto.subtle.decrypt(
+      {
+        name: "RSA-OAEP",
+      },
+      this.keys.sk!,
+      hsId
+    );
+    hsId = decoder.decode(hsId);
     let key = message.key;
     key = new Uint8Array(key).buffer;
     key = await window.crypto.subtle.decrypt(
@@ -145,16 +158,7 @@ export class AppBroadcaster extends LitElement {
       this.keys.sk!,
       key
     );
-    hsId = await window.crypto.subtle.decrypt(
-      {
-        name: "RSA-OAEP",
-      },
-      this.keys.sk!,
-      hsId
-    );
     key = decoder.decode(key);
-    hsId = decoder.decode(hsId);
-
     let cKey = await window.crypto.subtle.importKey(
       "jwk",
       JSON.parse(key),
@@ -165,7 +169,6 @@ export class AppBroadcaster extends LitElement {
       true,
       ["encrypt", "decrypt"]
     );
-
     let sdp = await window.crypto.subtle.decrypt(
       {
         name: "AES-GCM",
@@ -174,13 +177,23 @@ export class AppBroadcaster extends LitElement {
       cKey,
       new Uint8Array(message.sdp.data).buffer
     );
-    this.startPeering(cKey, hsId, decoder.decode(sdp));
+    let sdpStr = decoder.decode(sdp);
+
+    let existingPeer = this.peers.find(peer => peer.id === hsId);
+    if(existingPeer) {
+      console.log("existing peer");
+      existingPeer.instance.signal(sdpStr);
+    } else {
+      this.startPeering(cKey, hsId, sdpStr);
+    }
   }
 
   async startPeering(key: CryptoKey, hsId: string, sdp: string) {
-
-
-    let peer = {id: window.crypto.randomUUID(), status: true, name: "Anonymous", instance: new SimplePeer({
+    let peer: Peer = {
+      id: hsId,
+      connecting: true,
+      name: "Anonymous " + this.peers.length,
+      instance: new SimplePeer({
       trickle: false,
       stream: this.stream ?? undefined
     })};
@@ -189,6 +202,7 @@ export class AppBroadcaster extends LitElement {
     this.requestUpdate();
 
     peer.instance.on('signal', async (data: SimplePeer.SignalData) => {
+
       let iv = window.crypto.getRandomValues(new Uint8Array(12));
       let eData = new TextEncoder().encode(JSON.stringify(data));
 
@@ -211,18 +225,32 @@ export class AppBroadcaster extends LitElement {
     });
 
     peer.instance.on('data', (data: SimplePeer.SimplePeerData) => {
-      console.log("DATA: " + data)
+      console.log(peer.name + " DATA: " + data)
     });
 
     peer.instance.on('connect', () => {
-      console.log('connected to peer')
+      peer.connecting = false;
+      peer.connect = new Date();
+      console.log(peer.name + ' connected to peer')
     });
 
     peer.instance.on('close', () => {
-      peer.status = false;
+      console.log('dis');
+      peer.disconnect = new Date();
+      this.requestUpdate();
+    });
+
+    peer.instance.on('error', (e) => {
+      console.log('err');
     });
 
     peer.instance.signal(sdp);
+  }
+
+  broadcast(message: string) {
+    this.peers.forEach((peer) => {
+      peer.instance.send(message);
+    })
   }
 
   muteToggle() {
@@ -236,7 +264,7 @@ export class AppBroadcaster extends LitElement {
       }
     }
     this.stream.getAudioTracks()[0].enabled = !this.micMuted;
-
+    this.broadcast(JSON.stringify({type: "mute", value: this.micMuted}));
   }
 
   render() {
@@ -248,13 +276,18 @@ export class AppBroadcaster extends LitElement {
       <h2>Broadcast</h2>
 
       <sl-card>
+        <trono-select-device></trono-select-device>
         <sl-icon @click=${this.muteToggle} name="${micIcon}" style="font-size:15rem"></sl-icon>
       </sl-card>
       <br/>
 
       <sl-card>
+        <sl-badge style="font-size: 1.5rem;" variant="danger" pill pulse>Listeners: ${this.peers.filter(peer => !peer.disconnect).length}</sl-badge>
+      </sl-card>
+
+      <sl-card>
         ${this.peers.map((peer) =>
-          html`<sl-avatar label="${peer.name}"></sl-avatar> ${peer.name} - ${peer.status}<br/>`
+          html`<sl-avatar label="${peer.name}"></sl-avatar> ${peer.name} - <sl-relative-time date="${peer.connect}" format="narrow" sync></sl-relative-time><br/>`
           )}
       </sl-card>
     </main>

@@ -18,7 +18,7 @@
   "dependencies": {
     "@netlify/functions": "^1.4.0",
     "@pwabuilder/pwainstall": "^1.6.7",
-    "@shoelace-style/shoelace": "^2.0.0-beta.87",
+    "@shoelace-style/shoelace": "^2.0.0",
     "@vaadin/router": "^1.7.4",
     "ably": "^1.2.34",
     "circular-audio-wave": "^1.0.1",

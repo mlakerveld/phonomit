@@ -18,8 +18,14 @@ export const handler: Handler = async (event) => {
       q.Get(q.Match(q.Index('UUID'), data.id))
     )
 
-    let handshakeId = 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
-    let listeningSock = 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
+    let handshakeId = data.hsId ?? 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
+
+    let listeningSock = data.hsId ? null : 'h' + crypto.randomUUID() + '-' + crypto.randomUUID();
+    if(!data.hsId) {
+      await client.query(
+        q.Create('handshakes', { data: { uuid: handshakeId, broadcastSock: listeningSock } })
+      )
+    }
 
     let key = await crypto.subtle.importKey(
       "jwk",
@@ -44,10 +50,6 @@ export const handler: Handler = async (event) => {
     let rChannelStr = Array.from(new Uint8Array(rChannel));
 
     let message = {channel: rChannelStr, sdp: data.sdp, key: data.key};
-
-    await client.query(
-      q.Create('handshakes', { data: { uuid: handshakeId, broadcastSock: listeningSock } })
-    )
 
     let rest = new Ably.Rest(ablyKey);
     let channel = rest.channels.get(room.data.broadcastSock);
