@@ -2,4 +2,4 @@
   framework = "vite"
   autoLaunch = false
   command = "npm run dev"
-  targetPort = 3000
+  targetPort = 5173

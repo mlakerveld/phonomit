@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import copy from 'rollup-plugin-copy';
-import { NgmiPolyfill } from "vite-plugin-ngmi-polyfill";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +11,10 @@ export default defineConfig({
     assetsDir: "code",
   },
   plugins: [
-    NgmiPolyfill(),
+    nodePolyfills({
+      // Whether to polyfill `node:` protocol imports.
+      protocolImports: true,
+    }),
     {
       ...copy({
         targets: [
