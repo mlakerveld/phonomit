@@ -5,6 +5,7 @@ import { Router } from '@vaadin/router';
 import './pages/app-home/app-home';
 import './pages/app-listener/app-listener';
 import './components/header';
+import './components/ripple-bg';
 import './styles/global.css';
 import { setBasePath } from '@shoelace-style/shoelace';
 
@@ -83,6 +84,8 @@ export class AppIndex extends LitElement {
 
   render() {
     return html`
+    <trono-ripple-bg></trono-ripple-bg>
+    <app-header></app-header>
       <div>
         <main>
           <div id="routerOutlet"></div>

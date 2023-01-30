@@ -4,17 +4,17 @@ import { property, customElement } from 'lit/decorators.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 @customElement('app-header')
 export class AppHeader extends LitElement {
-  @property({ type: String }) title = 'Trono.stream';
-
   @property({ type: Boolean}) enableBack: boolean = false;
 
   static get styles() {
     return css`
       header {
         display: flex;
+        flex-direction: column;
         justify-content: space-between;
+        align-content: center;
         align-items: center;
-        background: var(--app-color-primary);
+        background-color: rgba(2, 43, 58, 0.8);
         color: white;
         height: 4em;
         padding-left: 16px;
@@ -28,22 +28,29 @@ export class AppHeader extends LitElement {
         -webkit-app-region: drag;
       }
 
+      header a {
+        text-decoration: none;
+      }
+
       header h1 {
         margin-top: 0;
         margin-bottom: 0;
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 26px;
       }
 
-      nav a {
-        margin-left: 10px;
+      .trono {
+        background-color: #1A6675;
+        border-radius: 5px;
+        padding: 10px;
+        color: #EDB230;
+        font-family: 'Aleo', serif;
+        font-weight: 400;
       }
 
-      #back-button-block {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 12em;
+      .stream {
+        color: #F3F3F4;
+        font-family: 'Caveat', handwriting;
+        font-weight: 500;
       }
 
       @media(prefers-color-scheme: light) {
@@ -65,14 +72,7 @@ export class AppHeader extends LitElement {
   render() {
     return html`
       <header>
-
-        <div id="back-button-block">
-          ${this.enableBack ? html`<sl-button href="${(import.meta as any).env.BASE_URL}">
-            Back
-          </sl-button>` : null}
-
-          <h1>${this.title}</h1>
-        </div>
+          <a href="/"><h1><span class="trono">TRONO</span><span class="stream">.stream</span></h1></a>
       </header>
     `;
   }

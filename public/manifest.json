@@ -1,10 +1,10 @@
 {
   "id": "/",
   "scope": "/",
-  "name": "Phonomit",
+  "name": "trono.stream",
   "display": "standalone",
   "start_url": "/",
-  "short_name": "phonomit",
+  "short_name": "trono",
   "theme_color": "#E1477E",
   "description": "Realtime P2P Audio transmission",
   "orientation": "any",
@@ -43,6 +43,10 @@
   ],
   "features": [
     "Cross Platform",
+    "p2p",
+    "end to end encryption",
+    "audio broadcasting",
+    "streaming",
     "fast",
     "simple"
   ],

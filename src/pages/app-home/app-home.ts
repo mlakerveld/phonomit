@@ -54,19 +54,6 @@ export class AppHome extends LitElement {
           width: 70vw;
         }
       }
-
-
-      @media (horizontal-viewport-segments: 2) {
-        #welcomeBar {
-          flex-direction: row;
-          align-items: flex-start;
-          justify-content: space-between;
-        }
-
-        #welcomeCard {
-          margin-right: 64px;
-        }
-      }
     `];
   }
 
@@ -94,8 +81,6 @@ export class AppHome extends LitElement {
 
   render() {
     return html`
-    <app-header></app-header>
-
     <main>
       <div id="welcomeBar">
         <sl-card id="welcomeCard">

@@ -270,8 +270,6 @@ export class AppBroadcaster extends LitElement {
   render() {
     let micIcon = this.micMuted ? "mic-mute-fill" : "mic-fill";
     return html`
-    <app-header ?enableBack="${true}"></app-header>
-
     <main>
       <h2>Broadcast</h2>
 
