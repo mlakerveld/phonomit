@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-
+import {ifDefined} from 'lit/directives/if-defined.js';
 import { styles as sharedStyles } from '../../styles/shared-styles'
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
@@ -128,13 +128,13 @@ export class AppBroadcaster extends LitElement {
     var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key=' + key;
     var eventSource = new EventSource(url);
 
-    eventSource.onmessage = function(event: any) {
+    eventSource.onmessage = (event: any) => {
       console.log('received ably message')
       var message = JSON.parse(event.data);
       if(message.name === "handshake") {
         this.parseHandshake(JSON.parse(message.data));
       }
-    }.bind(this);
+    };
   }
 
   async parseHandshake(message: any) {
@@ -263,7 +263,7 @@ export class AppBroadcaster extends LitElement {
         return;
       }
     }
-    this.stream.getAudioTracks()[0].enabled = !this.micMuted;
+    this.stream!.getAudioTracks()[0].enabled = !this.micMuted;
     this.broadcast(JSON.stringify({type: "mute", value: this.micMuted}));
   }
 
@@ -285,7 +285,7 @@ export class AppBroadcaster extends LitElement {
 
       <sl-card>
         ${this.peers.map((peer) =>
-          html`<sl-avatar label="${peer.name}"></sl-avatar> ${peer.name} - <sl-relative-time date="${peer.connect}" format="narrow" sync></sl-relative-time><br/>`
+          html`<sl-avatar label="${peer.name}"></sl-avatar> ${peer.name} - <sl-relative-time date="${ifDefined(peer.connect)}" format="narrow" sync></sl-relative-time><br/>`
           )}
       </sl-card>
     </main>
