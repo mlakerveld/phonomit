@@ -20,7 +20,7 @@ export default defineConfig({
         targets: [
           {
             src: 'node_modules/@shoelace-style/shoelace/dist/assets/icons',
-            dest: 'dist/assets/shoelace/assets/icons'
+            dest: 'dist/assets/shoelace/assets'
           }
         ],
         // https://github.com/vitejs/vite/issues/1231
