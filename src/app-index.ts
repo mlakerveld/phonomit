@@ -5,6 +5,7 @@ import { Router } from '@vaadin/router';
 import './pages/app-home/app-home';
 import './pages/app-listener/app-listener';
 import './components/header';
+import './components/footer';
 import './components/ripple-bg';
 import './styles/global.css';
 import { setBasePath } from '@shoelace-style/shoelace';
@@ -13,6 +14,10 @@ import { setBasePath } from '@shoelace-style/shoelace';
 export class AppIndex extends LitElement {
   static get styles() {
     return css`
+      trono-footer {
+        margin-top: auto
+      }
+
       main {
         padding-left: 16px;
         padding-right: 16px;
@@ -58,15 +63,10 @@ export class AppIndex extends LitElement {
   }
 
   firstUpdated() {
-    // this method is a lifecycle even in lit
-    // for more info check out the lit docs https://lit.dev/docs/components/lifecycle/
-
     setBasePath("/assets/shoelace")
 
-    // For more info on using the @vaadin/router check here https://vaadin.com/router
     const router = new Router(this.shadowRoot?.querySelector('#routerOutlet'));
     router.setRoutes([
-      // temporarily cast to any because of a Type bug with the router
       {
         path: (import.meta as any).env.BASE_URL,
         animate: true,
@@ -86,11 +86,12 @@ export class AppIndex extends LitElement {
     return html`
     <trono-ripple-bg></trono-ripple-bg>
     <app-header></app-header>
-      <div>
+      <div id="main">
         <main>
           <div id="routerOutlet"></div>
         </main>
       </div>
+      <trono-footer></trono-footer>
     `;
   }
 }

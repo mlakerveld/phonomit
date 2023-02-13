@@ -48,12 +48,6 @@ export class AppHome extends LitElement {
         display: flex;
         justify-content: flex-end;
       }
-
-      @media(min-width: 750px) {
-        sl-card {
-          width: 70vw;
-        }
-      }
     `];
   }
 
