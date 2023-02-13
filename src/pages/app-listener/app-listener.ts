@@ -45,7 +45,7 @@ export class AppListener extends LitElement {
       ["encrypt", "decrypt"]
     );
 
-    let pbKey = await this.getStreamKey();
+    let pbKey: JsonWebKey = await this.getStreamKey() as JsonWebKey;
 
     let bKey = await window.crypto.subtle.importKey(
       "jwk",
@@ -150,7 +150,7 @@ export class AppListener extends LitElement {
     var url = 'https://realtime.ably.io/event-stream?channels=' + socket + '&v=1.1&key=' + key;
     var eventSource = new EventSource(url);
 
-    eventSource.onmessage = async function(event) {
+    eventSource.onmessage = async (event) => {
       var message = JSON.parse(JSON.parse(event.data).data);
       let sdp = await window.crypto.subtle.decrypt(
         {
@@ -161,8 +161,8 @@ export class AppListener extends LitElement {
         new Uint8Array(message.data).buffer
       );
 
-      this.peer.signal(JSON.parse(new TextDecoder().decode(sdp)));
-    }.bind(this);
+      this.peer!.signal(JSON.parse(new TextDecoder().decode(sdp)));
+    };
   }
 
   getAudioPlayer() {
@@ -177,12 +177,14 @@ export class AppListener extends LitElement {
   }
 
   play() {
+    let aplayer: HTMLAudioElement = this.shadowRoot?.getElementById("player") as HTMLAudioElement;
+    let aicon = this.shadowRoot!.getElementById("audio-icon");
     if(this.status) {
-      this.shadowRoot?.getElementById("player")?.pause();
-      this.shadowRoot.getElementById("audio-icon").name = "play-circle-fill";
+      aplayer!.pause();
+      aicon!.setAttribute("name", "play-circle-fill");
     } else {
-      this.shadowRoot?.getElementById("player")?.play();
-      this.shadowRoot.getElementById("audio-icon").name = "pause-circle-fill";
+      aplayer!.play();
+      aicon!.setAttribute("name", "pause-circle-fill");
     }
     this.status = !this.status;
   }
