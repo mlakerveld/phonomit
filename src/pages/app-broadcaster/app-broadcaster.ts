@@ -241,7 +241,7 @@ export class AppBroadcaster extends LitElement {
     });
 
     peer.instance.on('error', (e) => {
-      console.log('err');
+      console.log(e.message);
     });
 
     peer.instance.signal(sdp);
@@ -259,7 +259,7 @@ export class AppBroadcaster extends LitElement {
       if(!this.stream) {
         navigator.mediaDevices.getUserMedia({
           audio: true
-        }).then((stream) => this.addMedia(stream)).catch((e) => {})
+        }).then((stream) => this.addMedia(stream)).catch((e) => {console.log(e.message);})
         return;
       }
     }
