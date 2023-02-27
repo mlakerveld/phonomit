@@ -10,6 +10,12 @@ export class Footer extends LitElement {
             background-color: rgba(2, 43, 58, 0.8);
             min-height: 3rem;
             padding: 10px;
+            font-family: 'Aleo', serif;
+            font-weight: bold;
+        }
+
+        a {
+          color: white;
         }
     `;
   }
@@ -21,7 +27,12 @@ export class Footer extends LitElement {
   render() {
     return html`
       <footer>
-        my foot
+        <div></div>
+        <span>&#169; trono.stream</span>
+        <div>
+          <a href="/privacy">Our Privacy Statement</a>
+          <a href="/terms">Terms of Use</a>
+        </div>
       </footer>
     `;
   }

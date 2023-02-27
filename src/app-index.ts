@@ -22,6 +22,7 @@ export class AppIndex extends LitElement {
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 16px;
+        padding-top: 40px;
       }
 
       #routerOutlet > * {
@@ -72,6 +73,14 @@ export class AppIndex extends LitElement {
         animate: true,
         children: [
           { path: '', component: 'app-home' },
+          { path: 'terms', component: 'app-terms',
+          action: async () => {
+            await import('./pages/app-terms.js');
+          },},
+          { path: 'privacy', component: 'app-privacy',
+          action: async () => {
+            await import('./pages/app-privacy.js');
+          },},
           { path: 'broadcaster/:channel?', component: 'app-broadcaster',
           action: async () => {
             await import('./pages/app-broadcaster/app-broadcaster.js');
