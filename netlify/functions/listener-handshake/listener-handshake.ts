@@ -27,7 +27,7 @@ export const handler: Handler = async (event) => {
       )
     }
 
-    let key = await crypto.subtle.importKey(
+    let key = await crypto.webcrypto.subtle.importKey(
       "jwk",
       room.data.key,
       {
@@ -39,7 +39,7 @@ export const handler: Handler = async (event) => {
     );
 
     let enc = new TextEncoder();
-    let rChannel = await crypto.subtle.encrypt(
+    let rChannel = await crypto.webcrypto.subtle.encrypt(
       {
         name: "RSA-OAEP",
       },
