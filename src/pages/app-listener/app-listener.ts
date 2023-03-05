@@ -80,7 +80,7 @@ export class AppListener extends LitElement {
 
     this.peer.on('signal', async (data: SimplePeer.SignalData) => {
       console.log("MUST SIGNAL");
-      fetch('http://localhost:8888/.netlify/functions/listener-handshake', {
+      fetch('/.netlify/functions/listener-handshake', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -135,7 +135,7 @@ export class AppListener extends LitElement {
   }
 
   getStreamKey(): Promise<string> {
-    return fetch('http://localhost:8888/.netlify/functions/get-key', {method: 'POST',
+    return fetch('/.netlify/functions/get-key', {method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'

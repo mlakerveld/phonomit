@@ -108,7 +108,7 @@ export class AppBroadcaster extends LitElement {
   }
 
   startBroadcast(channel: string): Promise<void> {
-    return fetch('http://localhost:8888/.netlify/functions/start-broadcast', {
+    return fetch('/.netlify/functions/start-broadcast', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -214,7 +214,7 @@ export class AppBroadcaster extends LitElement {
         key,
         eData
       );
-      fetch('http://localhost:8888/.netlify/functions/broadcast-handshake', {
+      fetch('/.netlify/functions/broadcast-handshake', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
