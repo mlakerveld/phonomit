@@ -2,6 +2,7 @@ import { html, LitElement } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 import { styles as sharedStyles } from '../../styles/shared-styles'
+import '../../components/trono-loader';
 
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import { RouterLocation } from '@vaadin/router';
@@ -168,11 +169,13 @@ export class AppListener extends LitElement {
   getAudioPlayer() {
     if(this.stream) {
       return html`
-        ${this.muted ? html`Muted` : html`Unmuted`}
+        ${this.muted ? html`<b>Host has muted their mic</b>` : html``}
         <audio style="display: none" id="player" controls .srcObject=${guard(this.stream, () => this.stream)}></audio>
-        <sl-icon id='audio-icon' @click="${this.play}" style="font-size: 20rem;" name="play-circle-fill"></sl-icon>`;
+
+        <sl-icon id='audio-icon' @click="${this.play}" style="font-size: 20rem;" name="play-circle-fill"></sl-icon>
+      `
     } else {
-      return html`<sl-spinner style="font-size: 20rem;"></sl-spinner>`;
+      return html`<trono-loader></trono-loader>`;
     }
   }
 
@@ -184,17 +187,21 @@ export class AppListener extends LitElement {
       aicon!.setAttribute("name", "play-circle-fill");
     } else {
       aplayer!.play();
-      aicon!.setAttribute("name", "pause-circle-fill");
+      aicon!.setAttribute("name", "stop-circle-fill");
     }
     this.status = !this.status;
   }
 
   render() {
     return html`
-      Listening to ${this.chanuuid}
-      <br/>
-      ${this.getAudioPlayer()}
-
+    <main>
+      <sl-card class="listen-card">
+        Listening to ${this.chanuuid}
+        <br/>
+        <br/>
+        ${this.getAudioPlayer()}
+      </sl-card>
+    </main>
     `;
   }
 }

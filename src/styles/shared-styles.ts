@@ -5,11 +5,14 @@ import { css } from 'lit';
 export const styles = css`
   @media(min-width: 1000px) {
     sl-card {
+      text-align: center;
       max-width: 70vw;
     }
   }
-
-  main {
-    margin-top: 80px;
-  }
+  .listen-card::part(body) {
+      text-align: center;
+    }
+    main {
+      text-align: center;
+    }
 `;

@@ -260,11 +260,13 @@ export class AppBroadcaster extends LitElement {
         navigator.mediaDevices.getUserMedia({
           audio: true
         }).then((stream) => this.addMedia(stream)).catch((e) => {console.log(e.message);})
+        window.document.title = (this.micMuted ? "🔇" : "🎤") + " - " + "trono.stream";
         return;
       }
     }
-    this.stream!.getAudioTracks()[0].enabled = !this.micMuted;
     this.broadcast(JSON.stringify({type: "mute", value: this.micMuted}));
+    this.stream!.getAudioTracks()[0].enabled = !this.micMuted;
+    window.document.title = (this.micMuted ? "🔇" : "🎤") + " - " + "trono.stream";
   }
 
   render() {
@@ -283,11 +285,13 @@ export class AppBroadcaster extends LitElement {
         <sl-badge style="font-size: 1.5rem;" variant="danger" pill pulse>Listeners: ${this.peers.filter(peer => !peer.disconnect).length}</sl-badge>
       </sl-card>
 
+      <!--
       <sl-card>
         ${this.peers.map((peer) =>
           html`<sl-avatar label="${peer.name}"></sl-avatar> ${peer.name} - <sl-relative-time date="${ifDefined(peer.connect)}" format="narrow" sync></sl-relative-time><br/>`
           )}
       </sl-card>
+        -->
     </main>
     `;
   }

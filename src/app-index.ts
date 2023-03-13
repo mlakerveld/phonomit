@@ -22,7 +22,7 @@ export class AppIndex extends LitElement {
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 16px;
-        padding-top: 40px;
+        padding-top: 70px;
       }
 
       #routerOutlet > * {
