@@ -81,6 +81,7 @@ export class AppListener extends LitElement {
 
     this.peer.on('signal', async (data: SimplePeer.SignalData) => {
       console.log("MUST SIGNAL");
+      console.log(data);
       fetch('/.netlify/functions/listener-handshake', {
         method: 'POST',
         headers: {
@@ -161,8 +162,9 @@ export class AppListener extends LitElement {
         this.key!,
         new Uint8Array(message.data).buffer
       );
-
-      this.peer!.signal(JSON.parse(new TextDecoder().decode(sdp)));
+      let sdpMessage = JSON.parse(new TextDecoder().decode(sdp));
+      console.log(sdpMessage);
+      this.peer!.signal(sdpMessage);
     };
   }
 

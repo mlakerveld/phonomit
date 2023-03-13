@@ -179,6 +179,8 @@ export class AppBroadcaster extends LitElement {
     );
     let sdpStr = decoder.decode(sdp);
 
+    console.log(sdpStr);
+
     let existingPeer = this.peers.find(peer => peer.id === hsId);
     if(existingPeer) {
       console.log("existing peer");
@@ -203,6 +205,7 @@ export class AppBroadcaster extends LitElement {
 
     peer.instance.on('signal', async (data: SimplePeer.SignalData) => {
 
+      console.log(data);
       let iv = window.crypto.getRandomValues(new Uint8Array(12));
       let eData = new TextEncoder().encode(JSON.stringify(data));
 
