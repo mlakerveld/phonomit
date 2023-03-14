@@ -49,12 +49,11 @@ export const handler: Handler = async (event) => {
 
     let rChannelStr = Array.from(new Uint8Array(rChannel));
 
-    let message = {channel: rChannelStr, sdp: data.sdp, key: data.key};
+    let message = {channel: rChannelStr, channelE: handshakeId, sdp: data.sdp, key: data.key};
 
     let rest = new Ably.Rest(ablyKey);
     let channel = rest.channels.get(room.data.broadcastSock);
     channel.publish("handshake", message);
-    console.log('sent to '+room.data.broadcastSock);
 
     return {
       statusCode: 200,

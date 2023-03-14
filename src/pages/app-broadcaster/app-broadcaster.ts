@@ -149,6 +149,8 @@ export class AppBroadcaster extends LitElement {
       hsId
     );
     hsId = decoder.decode(hsId);
+    console.log("handshakeId received: "+hsId);
+    console.log("handshakeid receivedE: "+message.channelE);
     let key = message.key;
     key = new Uint8Array(key).buffer;
     key = await window.crypto.subtle.decrypt(
