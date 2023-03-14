@@ -247,7 +247,9 @@ export class AppBroadcaster extends LitElement {
       console.log(e.message);
     });
 
-    peer.instance.signal(sdp);
+    setTimeout(() => {
+      peer.instance.signal(sdp);
+    }, 2000);
   }
 
   broadcast(message: string) {
