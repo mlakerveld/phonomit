@@ -153,6 +153,7 @@ export class AppListener extends LitElement {
     var eventSource = new EventSource(url);
 
     eventSource.onmessage = async (event) => {
+      console.log('got message');
       var message = JSON.parse(JSON.parse(event.data).data);
       let sdp = await window.crypto.subtle.decrypt(
         {
