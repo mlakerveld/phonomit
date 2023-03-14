@@ -23,7 +23,7 @@ export const handler: Handler = async (event) => {
     let rest = new Ably.Rest(ablyKey);
     let channel = rest.channels.get(listenerHandshake.data.broadcastSock);
     channel.publish("handshake", message);
-
+    console.log('handshake sent to ' + listenerHandshake.data.broadcastSock);
     return {
       statusCode: 200
     }
