@@ -54,6 +54,7 @@ export const handler: Handler = async (event) => {
     let rest = new Ably.Rest(ablyKey);
     let channel = rest.channels.get(room.data.broadcastSock);
     channel.publish("handshake", message);
+    channel.publish("stamp", "force");
     console.log('sent hs with id: ' + handshakeId)
 
     return {
